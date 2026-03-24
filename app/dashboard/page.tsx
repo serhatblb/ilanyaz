@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
+import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import SectorSelect from '@/components/SectorSelect'
 import EmlakForm, { type EmlakData } from '@/components/EmlakForm'
@@ -26,9 +27,10 @@ function DashboardContent() {
   const [error, setError] = useState<string | null>(null)
   const [guestUsage, setGuestUsage] = useState(0)
 
-  // TODO: NextAuth session — sonraki adımda eklenecek
-  const isLoggedIn = true   // geçici: limit bypass
-  const userId = null
+  const { data: session } = useSession()
+  const isLoggedIn = !!session?.user
+  // @ts-expect-error — session tipini genişlettik
+  const userId = session?.user?.id ?? null
 
   useEffect(() => {
     setGuestUsage(getGuestUsageCount())
