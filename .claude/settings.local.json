@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx create-next-app@latest ilanyaz --typescript --tailwind --app --no-git --no-eslint --import-alias \"@/*\" --yes)"
+      "Bash(npx create-next-app@latest ilanyaz --typescript --tailwind --app --no-git --no-eslint --import-alias \"@/*\" --yes)",
+      "Bash(npm install:*)",
+      "Bash(cd:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(node -e \":*)",
+      "Bash(curl -s \"https://generativelanguage.googleapis.com/v1beta/models?key=AIzaSyBKxvtbHlu67zQb45rirzPGTQiQ67fZ5XY\")",
+      "Bash(node -e \"const d=require\\(''''fs''''\\).readFileSync\\(''''/dev/stdin'''',''''utf8''''\\); const j=JSON.parse\\(d\\); \\(j.models||[]\\).filter\\(m=>m.supportedGenerationMethods?.includes\\(''''generateContent''''\\)\\).forEach\\(m=>console.log\\(m.name\\)\\)\")"
     ]
   }
 }
