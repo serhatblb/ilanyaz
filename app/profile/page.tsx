@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import ThemeToggle from '@/components/ThemeToggle'
@@ -16,6 +16,9 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const [avatarError, setAvatarError] = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   // @ts-expect-error — session tipini genişlettik
   const plan: string = session?.user?.plan ?? 'registered'
@@ -36,6 +39,25 @@ export default function ProfilePage() {
         <div className="w-8 h-8 rounded-full border-2 border-[var(--accent)] border-t-transparent animate-spin" />
       </div>
     )
+  }
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarUploading(true)
+    setAvatarError(null)
+    try {
+      const fd = new FormData()
+      fd.append('avatar', file)
+      const res = await fetch('/api/profile/avatar', { method: 'POST', body: fd })
+      const j = await res.json()
+      if (!res.ok) { setAvatarError(j.error); return }
+      await update({ image: j.url })
+    } catch {
+      setAvatarError('Yükleme başarısız')
+    } finally {
+      setAvatarUploading(false)
+    }
   }
 
   const handleSave = async () => {
@@ -92,7 +114,8 @@ export default function ProfilePage() {
 
         {/* Avatar + isim */}
         <div className="flex flex-col items-center text-center mb-10">
-          <div className="relative mb-5">
+          <div className="relative mb-5 group cursor-pointer" onClick={() => fileRef.current?.click()} title="Fotoğrafı değiştir">
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
             {session.user.image ? (
               <Image
                 src={session.user.image}
@@ -109,14 +132,19 @@ export default function ProfilePage() {
                 {name.charAt(0).toUpperCase() || '?'}
               </div>
             )}
-            <div
-              className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-xs"
-              style={{ background: 'var(--accent)', color: '#000' }}
-              title="Google ile bağlı"
-            >
-              G
+            {/* Hover overlay */}
+            <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+              {avatarUploading ? (
+                <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-6 h-6">
+                  <path d="M12 9a3.75 3.75 0 1 0 0 7.5A3.75 3.75 0 0 0 12 9Z" />
+                  <path fillRule="evenodd" d="M9.344 3.071a49.52 49.52 0 0 1 5.312 0c.967.052 1.83.585 2.332 1.39l.821 1.317c.24.383.645.643 1.11.71.386.054.77.113 1.152.177 1.432.239 2.429 1.493 2.429 2.909V18a3 3 0 0 1-3 3h-15a3 3 0 0 1-3-3V9.574c0-1.416.997-2.67 2.429-2.909.382-.064.766-.123 1.151-.178a1.56 1.56 0 0 0 1.11-.71l.822-1.315a2.942 2.942 0 0 1 2.332-1.39ZM6.75 12.75a5.25 5.25 0 1 1 10.5 0 5.25 5.25 0 0 1-10.5 0Zm12-1.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
+                </svg>
+              )}
             </div>
           </div>
+          {avatarError && <p className="text-xs mb-2" style={{ color: '#ef4444' }}>{avatarError}</p>}
 
           <p className="text-xs mb-1" style={{ color: 'var(--muted)' }}>{session.user.email}</p>
           <span

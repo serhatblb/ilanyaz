@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import AuthProvider from "@/components/AuthProvider";
+import FloatingWidgets from "@/components/FloatingWidgets";
 
 export const metadata: Metadata = {
   title: "İlanYaz.ai — Yapay Zeka ile Anında İlan Metni",
@@ -17,7 +18,10 @@ export default function RootLayout({
     <html lang="tr" className="h-full" suppressHydrationWarning>
       <body className="min-h-full bg-[var(--background)] text-[var(--foreground)]">
         <AuthProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            {children}
+            <FloatingWidgets />
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>

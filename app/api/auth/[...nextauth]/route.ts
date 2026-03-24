@@ -40,7 +40,7 @@ const handler = NextAuth({
       const supabase = createServiceClient()
       const { data: dbUser } = await supabase
         .from('users')
-        .select('id, plan, usage_count')
+        .select('id, plan, usage_count, avatar_url')
         .eq('email', session.user.email)
         .single()
 
@@ -51,6 +51,7 @@ const handler = NextAuth({
         session.user.plan = dbUser.plan
         // @ts-expect-error
         session.user.usageCount = dbUser.usage_count
+        if (dbUser.avatar_url) session.user.image = dbUser.avatar_url
       }
 
       return session
