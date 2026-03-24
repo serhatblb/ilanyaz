@@ -3,6 +3,8 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
 import SectorSelect from '@/components/SectorSelect'
 import EmlakForm, { type EmlakData } from '@/components/EmlakForm'
 import GaleriForm, { type GaleriData } from '@/components/GaleriForm'
@@ -102,12 +104,25 @@ function DashboardContent() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {isLoggedIn ? (
-            <button
-              onClick={() => signOut({ callbackUrl: '/' })}
-              className="text-xs text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-            >
-              Çıkış Yap
-            </button>
+            <Link href="/profile" className="flex items-center gap-2 group">
+              {session?.user?.image ? (
+                <Image
+                  src={session.user.image}
+                  alt="Profil"
+                  width={32}
+                  height={32}
+                  className="rounded-full ring-2 group-hover:ring-[var(--accent)] transition-all"
+                  style={{ ringColor: 'var(--border)' }}
+                />
+              ) : (
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
+                  style={{ background: 'var(--accent-muted)', color: 'var(--accent)' }}
+                >
+                  {session?.user?.name?.charAt(0).toUpperCase() || '?'}
+                </div>
+              )}
+            </Link>
           ) : (
             <button
               onClick={() => signIn('google', { callbackUrl: '/dashboard' })}

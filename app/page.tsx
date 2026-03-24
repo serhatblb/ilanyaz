@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { signIn, useSession } from "next-auth/react";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Home() {
+  const { data: session } = useSession()
+
   return (
     <div className="min-h-screen bg-[var(--background)] flex flex-col overflow-x-hidden">
 
@@ -23,15 +26,26 @@ export default function Home() {
         </span>
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <Link href="/dashboard"
-            className="px-4 py-2 text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
-            Giriş Yap
-          </Link>
-          <Link href="/dashboard"
-            className="px-4 py-2 text-sm font-semibold rounded-xl transition-all"
-            style={{ background: 'var(--accent)', color: '#000' }}>
-            Ücretsiz Dene →
-          </Link>
+          {session?.user ? (
+            <Link href="/dashboard"
+              className="px-4 py-2 text-sm font-semibold rounded-xl transition-all"
+              style={{ background: 'var(--accent)', color: '#000' }}>
+              Dashboard →
+            </Link>
+          ) : (
+            <>
+              <button
+                onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                className="px-4 py-2 text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
+                Giriş Yap
+              </button>
+              <Link href="/dashboard"
+                className="px-4 py-2 text-sm font-semibold rounded-xl transition-all"
+                style={{ background: 'var(--accent)', color: '#000' }}>
+                Ücretsiz Dene →
+              </Link>
+            </>
+          )}
         </div>
       </header>
 
