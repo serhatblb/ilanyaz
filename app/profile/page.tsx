@@ -269,7 +269,7 @@ export default function ProfilePage() {
         {/* Çıkış */}
         <button
           onClick={() => signOut({ callbackUrl: '/' })}
-          className="w-full py-3 text-sm rounded-xl border transition-all"
+          className="w-full py-3 text-sm font-medium rounded-xl border transition-all hover:bg-red-500/10 hover:border-red-500/50 hover:text-red-500 active:scale-[0.98]"
           style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}
         >
           Çıkış Yap

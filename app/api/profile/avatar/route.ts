@@ -1,9 +1,10 @@
 import { getServerSession } from 'next-auth'
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
+import { authOptions } from '@/lib/auth'
 
 export async function POST(req: Request) {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
 
   const supabase = createServiceClient()
   const ext = file.name.split('.').pop() ?? 'jpg'
-  const path = `${session.user.email.replace('@', '_').replace('.', '_')}.${ext}`
+  const path = `${session.user.email.replace(/[@.]/g, '_')}.${ext}`
 
   const buffer = await file.arrayBuffer()
   const { error: uploadError } = await supabase.storage
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
     .upload(path, buffer, { contentType: file.type, upsert: true })
 
   if (uploadError) {
-    return NextResponse.json({ error: 'Yükleme başarısız' }, { status: 500 })
+    return NextResponse.json({ error: 'Yükleme başarısız: ' + uploadError.message }, { status: 500 })
   }
 
   const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
