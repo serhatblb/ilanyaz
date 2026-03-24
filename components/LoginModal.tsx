@@ -1,5 +1,7 @@
 'use client'
 
+import { signIn } from 'next-auth/react'
+
 interface LoginModalProps {
   onClose: () => void
   reason: 'copy' | 'limit'
@@ -7,8 +9,7 @@ interface LoginModalProps {
 
 export default function LoginModal({ onClose, reason }: LoginModalProps) {
   const handleGoogleLogin = () => {
-    // NextAuth Google OAuth — sonraki adımda eklenecek
-    window.location.href = '/api/auth/signin/google'
+    signIn('google', { callbackUrl: '/dashboard' })
   }
 
   return (

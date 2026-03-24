@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useSession } from 'next-auth/react'
+import { useSession, signIn, signOut } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import SectorSelect from '@/components/SectorSelect'
 import EmlakForm, { type EmlakData } from '@/components/EmlakForm'
@@ -101,12 +101,20 @@ function DashboardContent() {
         </span>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          {!isLoggedIn && (
+          {isLoggedIn ? (
             <button
-              onClick={() => setLoginModal('copy')}
+              onClick={() => signOut({ callbackUrl: '/' })}
               className="text-xs text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
             >
-              Giriş Yap
+              Çıkış Yap
+            </button>
+          ) : (
+            <button
+              onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+              className="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all"
+              style={{ background: 'var(--accent)', color: '#000' }}
+            >
+              Google ile Giriş
             </button>
           )}
         </div>
