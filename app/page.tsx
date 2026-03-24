@@ -1,8 +1,114 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 import ThemeToggle from "@/components/ThemeToggle";
+
+function ContactForm() {
+  const [form, setForm] = useState({ name: '', email: '', message: '' })
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [errMsg, setErrMsg] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setStatus('sending')
+    setErrMsg('')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const j = await res.json()
+      if (!res.ok) { setErrMsg(j.error); setStatus('error'); return }
+      setStatus('sent')
+      setForm({ name: '', email: '', message: '' })
+    } catch {
+      setErrMsg('Sunucu hatası, tekrar deneyin')
+      setStatus('error')
+    }
+  }
+
+  if (status === 'sent') {
+    return (
+      <div className="text-center py-12 rounded-2xl border"
+        style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+        <div className="text-4xl mb-4">✅</div>
+        <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--foreground)', fontFamily: 'Syne, sans-serif' }}>
+          Mesajın Alındı!
+        </h3>
+        <p className="text-sm" style={{ color: 'var(--muted)' }}>En kısa sürede dönüş yapacağız.</p>
+        <button onClick={() => setStatus('idle')}
+          className="mt-6 text-xs underline" style={{ color: 'var(--accent)' }}>
+          Yeni mesaj gönder
+        </button>
+      </div>
+    )
+  }
+
+  const inputStyle = {
+    background: 'var(--background)',
+    borderColor: 'var(--border)',
+    color: 'var(--foreground)',
+  }
+
+  return (
+    <form onSubmit={handleSubmit}
+      className="rounded-2xl border p-8 space-y-4"
+      style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="text-xs mb-1 block" style={{ color: 'var(--muted)' }}>Ad Soyad</label>
+          <input
+            type="text"
+            value={form.name}
+            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            placeholder="Ahmet Yılmaz"
+            required
+            className="w-full px-4 py-2.5 rounded-xl text-sm border outline-none focus:border-[var(--accent)] transition-colors"
+            style={inputStyle}
+          />
+        </div>
+        <div>
+          <label className="text-xs mb-1 block" style={{ color: 'var(--muted)' }}>E-posta</label>
+          <input
+            type="email"
+            value={form.email}
+            onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+            placeholder="ahmet@mail.com"
+            required
+            className="w-full px-4 py-2.5 rounded-xl text-sm border outline-none focus:border-[var(--accent)] transition-colors"
+            style={inputStyle}
+          />
+        </div>
+      </div>
+      <div>
+        <label className="text-xs mb-1 block" style={{ color: 'var(--muted)' }}>Mesaj</label>
+        <textarea
+          value={form.message}
+          onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+          placeholder="Soru veya önerinizi yazın…"
+          required
+          rows={4}
+          className="w-full px-4 py-2.5 rounded-xl text-sm border outline-none focus:border-[var(--accent)] transition-colors resize-none"
+          style={inputStyle}
+        />
+      </div>
+      {status === 'error' && (
+        <p className="text-xs" style={{ color: '#ef4444' }}>{errMsg}</p>
+      )}
+      <button
+        type="submit"
+        disabled={status === 'sending'}
+        className="w-full py-3 text-sm font-bold rounded-xl transition-all"
+        style={{ background: 'var(--accent)', color: '#000', opacity: status === 'sending' ? 0.7 : 1 }}
+      >
+        {status === 'sending' ? 'Gönderiliyor…' : 'Gönder →'}
+      </button>
+    </form>
+  )
+}
 
 export default function Home() {
   const { data: session } = useSession()
@@ -217,6 +323,19 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* İletişim */}
+      <section className="relative py-20 px-6">
+        <div className="max-w-xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold mb-3" style={{ fontFamily: 'Syne, sans-serif', color: 'var(--foreground)' }}>
+              Soru veya Önerin mi Var?
+            </h2>
+            <p className="text-sm" style={{ color: 'var(--muted)' }}>Sana en kısa sürede dönüş yaparız</p>
+          </div>
+          <ContactForm />
         </div>
       </section>
 
