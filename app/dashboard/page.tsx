@@ -111,8 +111,7 @@ function DashboardContent() {
                   alt="Profil"
                   width={32}
                   height={32}
-                  className="rounded-full ring-2 group-hover:ring-[var(--accent)] transition-all"
-                  style={{ ringColor: 'var(--border)' }}
+                  className="rounded-full ring-2 ring-[var(--border)] group-hover:ring-[var(--accent)] transition-all"
                 />
               ) : (
                 <div
