@@ -99,8 +99,7 @@ export default function ProfilePage() {
                 alt="Profil fotoğrafı"
                 width={96}
                 height={96}
-                className="rounded-full ring-4"
-                style={{ ringColor: 'var(--accent)' }}
+                className="rounded-full ring-4 ring-[var(--accent)]"
               />
             ) : (
               <div
